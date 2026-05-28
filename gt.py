@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
-"""
-GuardaTensão v3 — Monitor de Energia com Detecção de Oscilação
-Aesthetic: Painel industrial âmbar/laranja — rack elétrico retrô
-v3: layout full-screen, 3x mais informações, sem centralização artificial
-"""
-
 import curses, psutil, time, os, subprocess, threading, sys, glob, platform
 from collections import deque
 from datetime import datetime
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  CONFIGURAÇÕES
-# ══════════════════════════════════════════════════════════════════════════════
+
 REFRESH_RATE        = 0.8
 HISTORY_SIZE        = 120
 ALERT_DROP_PCT      = 5
@@ -24,9 +16,7 @@ CURRENT_VAR_THRESH  = 0.15
 SAVE_LOG            = True
 LOG_FILE            = os.path.expanduser("~/.guardatensao.log")
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  PARES DE COR
-# ══════════════════════════════════════════════════════════════════════════════
+
 C_AMBER  = 1
 C_BRIGHT = 2
 C_DIM    = 3
@@ -40,9 +30,7 @@ C_CYAN   = 10
 C_WHITE  = 11
 C_MAGENTA= 12
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  ESTADO GLOBAL
-# ══════════════════════════════════════════════════════════════════════════════
+
 events          = deque(maxlen=200)
 hist_pct        = deque([0.0]*HISTORY_SIZE, maxlen=HISTORY_SIZE)
 hist_current    = deque([0.0]*HISTORY_SIZE, maxlen=HISTORY_SIZE)
@@ -75,9 +63,6 @@ stats           = {
     "last_outage_ts": None,
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  UTILITÁRIOS
-# ══════════════════════════════════════════════════════════════════════════════
 def log_event(msg: str, level: str = "INFO"):
     ts    = datetime.now().strftime("%H:%M:%S")
     entry = f"[{ts}][{level:5s}] {msg}"
@@ -145,9 +130,6 @@ def fmt_bytes(b):
         b /= 1024
     return f"{b:.1f}P"
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  LEITURA DE ENERGIA
-# ══════════════════════════════════════════════════════════════════════════════
 def get_power():
     info = dict(battery_pct=None, plugged=None, time_left=None,
                 status="—", voltage=None, current=None, ac_online=None,
@@ -218,9 +200,6 @@ def get_power():
     except: pass
     return info
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  THREAD DE MONITORAMENTO
-# ══════════════════════════════════════════════════════════════════════════════
 _disk_r0, _disk_w0 = get_disk_io()
 _net_s0,  _net_r0  = get_net_io()
 _last_io_ts = time.time()
@@ -343,9 +322,6 @@ def monitor_loop():
         last_plugged = info["plugged"]
         time.sleep(REFRESH_RATE)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  HELPERS DE DESENHO
-# ══════════════════════════════════════════════════════════════════════════════
 def safe(win, y, x, txt, attr=0):
     try:
         h,w = win.getmaxyx()
@@ -442,9 +418,6 @@ def divider(win, y, title="", color=C_DIM):
             win.addstr(y, cx, t, curses.color_pair(C_HDR) | curses.A_BOLD)
     except: pass
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  LAYOUT PRINCIPAL v3 — FULL SCREEN
-# ══════════════════════════════════════════════════════════════════════════════
 LOGO = [
     " ▄▄  ▄  ▄  ▄▄  ▄▄  ▄▄  ▄▄     ▄▄  ▄▄  ▄▄  ▄▄ ▄  ▄  ▄▄  ▄▄ ",
     "█    █  █ █  █ █   █  █ █  █   █   █   █  █ █ █  █ █  █ █   ",
@@ -521,10 +494,6 @@ def draw(stdscr, info, tick):
     hline(stdscr, row, 0, "═", SW, curses.color_pair(C_BORDER) | curses.A_BOLD)
     row += 1
 
-    # ══════════════════════════════════════════════════════════════════════════
-    #  LAYOUT EM 3 COLUNAS
-    #  Col A: energia/bateria    Col B: oscilação/rede    Col C: sistema
-    # ══════════════════════════════════════════════════════════════════════════
     col_start = row
     cw = (SW - 4) // 3      # largura de cada coluna
     cA = 1                   # col A x
@@ -564,7 +533,7 @@ def draw(stdscr, info, tick):
         label_val(stdscr, r, cA+1, "AC REDE  ", ("ONLINE ✓" if ac else "OFFLINE ✗") if ac is not None else "N/D", vc=C_GOOD if ac else C_CRIT)
         r += 1
 
-        # capacidade e saúde
+        # capacidade e saude
         cap = info.get("capacity_mah")
         full= info.get("capacity_full")
         des = info.get("capacity_design")
@@ -579,7 +548,7 @@ def draw(stdscr, info, tick):
             hbar(stdscr, r, cA+14, hw, hlth, hc)
             r += 1
 
-        # picos
+        # picas
         safe(stdscr, r, cA+1, "─── PICOS ───────────────────────", curses.color_pair(C_DIM))
         r += 1
         label_val(stdscr, r, cA+1, "I máx    ", f"{peak_current:.3f} A" if peak_current else "N/D", vc=C_WARN)
@@ -852,9 +821,6 @@ def draw(stdscr, info, tick):
               f"AVISOS:{stats['total_warnings']}   log→{LOG_FILE}  ")
     safe(stdscr, SH-1, 0, footer[:SW-1], curses.color_pair(C_DIM))
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  MAIN CURSES
-# ══════════════════════════════════════════════════════════════════════════════
 def main(stdscr):
     global alert_flash, beep_enabled, running
 
@@ -909,9 +875,6 @@ def main(stdscr):
         stdscr.refresh()
         tick += 1
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  ENTRYPOINT
-# ══════════════════════════════════════════════════════════════════════════════
 def run():
     global running
     t = threading.Thread(target=monitor_loop, daemon=True)
