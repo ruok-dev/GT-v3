@@ -1,4 +1,4 @@
-# ⚡ GuardaTensão v3
+# ⚡ GuardianTension v3
 
 Funciona em qualquer Linux que tenha /sys/class/power_supply/ exposto pelo kernel (NÃO FUNCIONA EM WINDOWS!)
 
