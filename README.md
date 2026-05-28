@@ -1,5 +1,7 @@
 # ⚡ GuardaTensão v3
 
+Funciona em qualquer Linux que tenha /sys/class/power_supply/ exposto pelo kernel (NÃO FUNCIONA EM WINDOWS!)
+
 Monitor de energia em tempo real para Linux — painel industrial no terminal, estética rack elétrico âmbar.
 
 ```
