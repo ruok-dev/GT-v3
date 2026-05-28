@@ -9,6 +9,7 @@ Monitor de energia em tempo real para Linux — painel industrial no terminal, e
 █  █ █  █ █  █ █   █  █ █  █   █   █   █  █ █   █  █  █ █
  ▀▀   ▀▀  █  █ ▀▀   ▀▀  █  █   ▀▀  ▀▀   ▀▀  ▀   █  █  █ ▀▀
 ```
+<img width="1918" height="997" alt="image" src="https://github.com/user-attachments/assets/2a061f45-427f-42fb-861f-db6d4f4a315f" />
 
 ---
 
